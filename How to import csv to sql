@@ -1,0 +1,35 @@
+import mysql.connector
+import csv
+
+Step 1: Connect to MySQL
+connection = mysql.connector.connect(
+host="localhost",
+user="root",
+password="your_password",
+database="your_database"
+)
+
+cursor = connection.cursor()
+
+===== SETTINGS =====
+table_name = "your_table" # <-- change table name
+csv_file = "your_file.csv" # <-- change CSV file name
+
+=====================
+Step 2: Read CSV header to get column names
+with open(csv_file, "r") as file:
+reader = csv.reader(file)
+header = next(reader) # first row = column names
+
+# Step 3: Create INSERT query dynamically
+placeholders = ", ".join(["%s"] * len(header))
+columns = ", ".join(header)
+insert_query = f"INSERT INTO {table_name} ({columns}) VALUES ({placeholders})"
+
+# Step 4: Insert all rows
+for row in reader:
+    cursor.execute(insert_query, row)
+Step 5: Commit and close
+connection.commit()
+cursor.close()
+connection.close()
